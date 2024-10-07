@@ -8,18 +8,18 @@ ui <- page_sidebar(
   
   # Sidebar with sliders for probabilities and values of events
   sidebar = sidebar(
-    sliderInput("prob_a", 
-                "Probability of A Occurring (%):",
-                min = 0, max = 100, value = 50, step = 1),
-    sliderInput("prob_b",
-                "Probability of B Occurring (%):",
-                min = 0, max = 100, value = 50, step = 1),
     numericInput("value_a",
                  "Value of A:",
                  value = 100),
     numericInput("value_b",
                  "Value of B:",
                  value = 0),
+    sliderInput("prob_a", 
+                "Probability of A Occurring (%):",
+                min = 0, max = 100, value = 50, step = 1),
+    sliderInput("prob_b",
+                "Probability of B Occurring (%):",
+                min = 0, max = 100, value = 50, step = 1),
     sliderInput("utility_curvature",
                 "Utility Function Curvature:",
                 min = 0, max = 1, value = 0.8, step = 0.02)
@@ -170,3 +170,5 @@ server <- function(input, output, session) {
 # Run the application 
 shinyApp(ui = ui, server = server)
 
+
+# runGitHub("simonvbaal/shiny_utility", subdir = "utility")
