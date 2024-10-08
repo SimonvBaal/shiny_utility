@@ -22,7 +22,7 @@ ui <- page_sidebar(
                 min = 0, max = 100, value = 50, step = 1),
     sliderInput("utility_curvature",
                 "Utility Function Curvature:",
-                min = 0, max = 1, value = 0.8, step = 0.02)
+                min = 0, max = 2, value = 0.8, step = 0.02)
   ),
   
   # Show the expected value and utility of the gamble
@@ -128,12 +128,16 @@ server <- function(input, output, session) {
     expected_utility <- expected_value ^ input$utility_curvature
     
     # Create the plot
-    plot(x_values, y_values, type = "l", col = "blue", lwd = 2,
-         xlab = "Expected Value", ylab = "Expected Utility",
-         main = "Utility Function with Expected Value Point")
+    plot(x_values, y_values, type = "l", col = "navy", lwd = 2,
+         xlab = "Expected Value", 
+         ylab = "Expected Utility",
+         main = "Utility as a Function of Expected Value")
     
     # Add a point for the expected value and utility
-    points(expected_value, expected_utility, col = "red", pch = 19, cex = 1.5)
+    points(expected_value, 
+           expected_utility, 
+           col = "maroon", 
+           pch = 19, cex = 1.5)
     
     # Draw horizontal and vertical line segments toward the point
     segments(x0 = 0, 
@@ -156,12 +160,45 @@ server <- function(input, output, session) {
     
     
     # Annotate the point
-    text(expected_value, expected_utility, labels = paste0("(", 
-                                                           round(expected_value, 2), 
-                                                           ", ", 
-                                                           round(expected_utility, 2), ")"),
-         pos = 4, col = "black")
+    text(
+      expected_value * 1.02,
+      expected_utility * .98,
+      labels = paste0(
+        "(",
+        round(expected_value, 2),
+        ", ",
+        round(expected_utility, 2),
+        ")"
+      ),
+      pos = 4,
+      col = "black"
+    )
     
+    if (input$utility_curvature == 1) {
+      text(
+        max(x_values) * .6,
+        max(y_values) * .25,
+        labels = "Risk Neutral",
+        pos = 4,
+        col = "black"
+      )
+    } else if (input$utility_curvature >= 1) {
+      text(
+        max(x_values) * .6,
+        max(y_values) * .25,
+        labels = "Risk Seeking",
+        pos = 4,
+        col = "black"
+      )
+    } else {
+      text(
+        max(x_values) * .6,
+        max(y_values) * .25,
+        labels = "Risk Averse",
+        pos = 4,
+        col = "black"
+      )
+    }
     
     
   })
