@@ -1,8 +1,23 @@
 library(shiny)
 library(bslib)
+library(bsicons)
+library(gitlink)
 
 # Define UI for application that calculates the utility of a gamble
 ui <- page_sidebar(
+  
+  ribbon_css("https://github.com/SimonvBaal/shiny_utility"),
+  
+  # Application theme
+  theme = bs_theme(bootswatch = "darkly", 
+                    #primary = "#00a6a6", 
+                    #secondary = "#f0f0f0",
+                    base_font = "Helvetica Neue",
+                    base_font_size = 9,
+                    heading_font = "Helvetica Neue",
+                    heading_font_size = 14,
+                   ),
+  
   # Application title
   title = "Expected Utility of a Gamble",
   
@@ -22,25 +37,42 @@ ui <- page_sidebar(
                 min = 0, max = 100, value = 50, step = 1),
     sliderInput("utility_curvature",
                 "Utility Function Curvature:",
-                min = 0, max = 2, value = 0.6, step = 0.02)
+                min = 0, max = 2, value = 0.6, step = 0.02),
+    #HTML('<img src="logo_cdr.png" width="100%" height="auto">')
   ),
   
   # Show the expected value and utility of the gamble
   layout_columns(
-    card(textOutput("expected_value"),
-         textOutput("expected_utility_sure"),
-         textOutput("expected_utility"),
-         textOutput("sum_check")),
     card(
-      card_header("Utility as a Function of Value"),
+      card_header("Utility as a Function of Value", class = "h6"),
       plotOutput("utility_plot")), # Add plot output to display the utility curve
-    col_widths = c(4, 8),
+    value_box(title = "Expected Value",
+              value = 
+                tags$div(textOutput("expected_value"), 
+                         style = "font-size: 28px; font-weight: bold; color: white;"),
+              showcase = bs_icon("piggy-bank-fill")),
+    value_box(title = "Utility of Expected Value",
+              value = 
+                tags$div(textOutput("expected_utility_sure"), 
+                         style = "font-size: 28px; font-weight: bold; color: white;"),
+              showcase = bs_icon("emoji-smile-fill")),
+    value_box(title = "Expected Utility of the Gamble",
+              value = 
+                tags$div(textOutput("expected_utility"), 
+                         style = "font-size: 28px; font-weight: bold; color: white;"),
+              showcase = bs_icon("emoji-smile"),
+              theme = "primary"),
+    value_box(title = "Note:",
+              tags$div(textOutput("risk_pref_note"), 
+                       style = "font-size: 20px; font-weight: bold; color: white;")),
+    col_widths = c(12, 2, 3, 7, 12),
+    row_heights = c(3, .8, .6)
   )
 )
 
 # Define server logic required to calculate the utility of a gamble
 server <- function(input, output, session) {
-  
+  #bs_themer()
   # Reactive values to keep track of the probabilities
   values <- reactiveValues(
     prob_a = 50,
@@ -97,8 +129,7 @@ server <- function(input, output, session) {
       (prob_a_normalized * input$value_a) + 
       (prob_b_normalized * input$value_b)
     
-    paste("Expected Value of the Gamble: $", 
-          round(expected_value, 2))
+    paste0("$", round(expected_value, 2))
   })
   
   output$expected_utility_sure <- renderText({
@@ -108,7 +139,7 @@ server <- function(input, output, session) {
       (values$prob_b / 100) * input$value_b
     utility <-
       sign(expected_value) * abs(expected_value) ^ input$utility_curvature
-    paste0("Utility of Equivalent Sure Amount ($",
+    paste0("U($",
           round(expected_value, 2), "): ", 
           round(utility, 2))
   })
@@ -129,16 +160,24 @@ server <- function(input, output, session) {
     expected_utility <- 
       expected_utility_a + expected_utility_b
     
-    paste("Expected Utility of the Gamble:", 
-          round(expected_utility, 2))
+    paste0(prob_a_normalized, " * U(", input$value_a, ") + ", 
+           prob_b_normalized, " * U(", input$value_b, ") = ", round(expected_utility, 2))
   })
 
   
-  # Check the sum of probabilities
-  output$sum_check <- renderText({
-    paste("Total Probability:", 
-          values$prob_a + values$prob_b, "%")
+  #======================================== Risk Preference Note
+  
+  output$risk_pref_note <- renderText({
+    risk_type <- if (input$utility_curvature == 1)
+      "If the utility function is linear, the individual is risk neutral. They are indifferent between a certain amount and a gamble with the same expected value."
+    else if (input$utility_curvature < 1)
+      "If the utility function is concave, the individual is risk averse. They prefer a certain amount over a gamble with the same expected value."
+    else
+      "If the utility function is convex, the individual is risk seeking. They prefer a gamble with the same expected value over a certain amount."
+    paste0("Risk Preference: ", risk_type)
   })
+  
+  #======================================= Plot
   
   # Generate a plot illustrating the utility function
   output$utility_plot <- renderPlot({
@@ -172,6 +211,7 @@ server <- function(input, output, session) {
     y_values <- sign(x_values) * abs(x_values) ^ input$utility_curvature
     
     # Create the plot
+    par(family = "Helvetica")
     plot(x_values, y_values, type = "l", col = "navy", lwd = 2,
          xlab = "Value", ylab = "Utility",
          xlim = c(min(x_values), max(x_values)), 
@@ -196,7 +236,7 @@ server <- function(input, output, session) {
              col = "black", lty = 2)
     # Annotate Utility of A
     text(min(x_values) + .01 * (max(x_values) - min(x_values)), 
-         utility_a + .015 * (max(y_values) - min(y_values)), 
+         utility_a + .03 * (max(y_values) - min(y_values)), 
          labels = paste0("U(A) = ", round(utility_a, 2)), 
          pos = 4, col = "black")
     
@@ -209,7 +249,7 @@ server <- function(input, output, session) {
              col = "black", lty = 2)
     # Annotate Utility of B
     text(min(x_values) + .01 * (max(x_values) - min(x_values)), 
-         utility_b + .015 * (max(y_values) - min(y_values)), 
+         utility_b + .03 * (max(y_values) - min(y_values)), 
          labels = paste0("U(B) = ", round(utility_b, 2)), 
          pos = 4, col = "black")
     
