@@ -46,6 +46,9 @@ ui <- page_sidebar(
     card(
       card_header("Utility as a Function of Value", class = "h6"),
       plotOutput("utility_plot")), # Add plot output to display the utility curve
+    value_box(title = "Note:",
+              tags$div(textOutput("risk_pref_note"), 
+                       style = "font-size: 20px; font-weight: bold; color: white;")),
     value_box(title = "Expected Value",
               value = 
                 tags$div(textOutput("expected_value"), 
@@ -62,11 +65,8 @@ ui <- page_sidebar(
                          style = "font-size: 28px; font-weight: bold; color: white;"),
               showcase = bs_icon("emoji-smile"),
               theme = "primary"),
-    value_box(title = "Note:",
-              tags$div(textOutput("risk_pref_note"), 
-                       style = "font-size: 20px; font-weight: bold; color: white;")),
-    col_widths = c(12, 2, 3, 7, 12),
-    row_heights = c(3, .8, .6)
+    col_widths = c(10, 2, 4, 4, 4),
+    row_heights = c(3, .9)
   )
 )
 
@@ -160,8 +160,8 @@ server <- function(input, output, session) {
     expected_utility <- 
       expected_utility_a + expected_utility_b
     
-    paste0(prob_a_normalized, " * U(", input$value_a, ") + ", 
-           prob_b_normalized, " * U(", input$value_b, ") = ", round(expected_utility, 2))
+    paste0(prob_a_normalized, "*U(", input$value_a, ") + ", 
+           prob_b_normalized, "*U(", input$value_b, ") = ", round(expected_utility, 2))
   })
 
   
