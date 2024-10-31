@@ -281,7 +281,7 @@ server <- function(input, output, session) {
     # Annotate Prospect Value
     text(min(x_values) + .01 * (max(x_values) - min(x_values)), 
          prospect_value * 0.98, 
-         labels = paste0("v = ", 
+         labels = paste0("v(gamble) = ", 
                          round(prospect_value, 2)), 
          pos = 4, col = "black")
     
