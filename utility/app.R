@@ -1,3 +1,5 @@
+# This is a Shiny web application that helps you visualise expected utility theory
+
 library(shiny)
 library(bslib)
 library(bsicons)
@@ -74,55 +76,29 @@ ui <- page_sidebar(
 server <- function(input, output, session) {
   #bs_themer()
   # Reactive values to keep track of the probabilities
-  values <- reactiveValues(
-    prob_a = 50,
-    prob_b = 50
-  )
+  observe(updateSliderInput(session, 
+                            inputId = "prob_a", 
+                            value = 100 - input$prob_b))
   
-  # Observer for prob_a slider
-  observeEvent(input$prob_a, {
-    isolate({
-      total <- values$prob_b + input$prob_a
-    })
-    
-    if (total > 100) {
-      values$prob_a <- 100 - values$prob_b
-    } else {
-      values$prob_a <- input$prob_a
-    }
-    
-    # Update the slider value to maintain total of 100
-    updateSliderInput(session, "prob_a", 
-                      value = values$prob_a)
+  output$prob_b <- renderUI({
+    sliderInput(inputId = "prob_b", 
+                label = "Probability of B Occurring", 
+                min = 0, max = 100, 
+                value = 100 - input$prob_a)
   })
   
-  # Observer for prob_b slider
-  observeEvent(input$prob_b, {
-    isolate({
-      total <- 
-        values$prob_a + input$prob_b
-    })
-    
-    if (total > 100) {
-      values$prob_b <- 100 - values$prob_a
-    } else {
-      values$prob_b <- input$prob_b
-    }
-    
-    # Update the slider value to maintain total of 100
-    updateSliderInput(session, 
-                      "prob_b", 
-                      value = values$prob_b)
-  })
+  observe(updateSliderInput(session, 
+                            inputId = "prob_b", 
+                            value = 100 - input$prob_a))
   
   # Calculate the expected value of the gamble
   output$expected_value <- renderText({
     
     # Normalize probabilities to proportions (0-1)
     prob_a_normalized <- 
-      values$prob_a / 100
+      input$prob_a / 100
     prob_b_normalized <- 
-      values$prob_b / 100
+      input$prob_b / 100
     
     # Calculate the expected value
     expected_value <- 
@@ -135,8 +111,8 @@ server <- function(input, output, session) {
   output$expected_utility_sure <- renderText({
     # Calculate the utility of the certain equivalent of expected value
     expected_value <- 
-      (values$prob_a / 100) * input$value_a + 
-      (values$prob_b / 100) * input$value_b
+      (input$prob_a / 100) * input$value_a + 
+      (input$prob_b / 100) * input$value_b
     utility <-
       sign(expected_value) * abs(expected_value) ^ input$utility_curvature
     paste0("U($",
@@ -147,8 +123,8 @@ server <- function(input, output, session) {
   # Calculate the utility of the gamble
   output$expected_utility <- renderText({
     # Normalize probabilities to proportions (0-1)
-    prob_a_normalized <- values$prob_a / 100
-    prob_b_normalized <- values$prob_b / 100
+    prob_a_normalized <- input$prob_a / 100
+    prob_b_normalized <- input$prob_b / 100
     
     # Calculate the expected utility
     expected_utility_a <- 
@@ -183,8 +159,8 @@ server <- function(input, output, session) {
   output$utility_plot <- renderPlot({
     
     # Calculate the current expected value and utility based on input
-    prob_a_normalized <- values$prob_a / 100
-    prob_b_normalized <- values$prob_b / 100
+    prob_a_normalized <- input$prob_a / 100
+    prob_b_normalized <- input$prob_b / 100
     expected_value_a <- (prob_a_normalized * input$value_a)
     expected_value_b <- (prob_b_normalized * input$value_b)
     expected_value <- expected_value_a + expected_value_b
@@ -264,7 +240,9 @@ server <- function(input, output, session) {
     text(expected_value + .01 * (max(x_values) - min(x_values)), 
          sign(expected_value) * abs(expected_value) ^ input$utility_curvature, 
          labels = paste0("EU(EV) = ", 
-                         round(sign(expected_value) * abs(expected_value) ^ input$utility_curvature, 2)), 
+                         round(sign(expected_value) * 
+                                 abs(expected_value) ^ 
+                                 input$utility_curvature, 2)), 
          pos = 4, col = "black")
     
     # Add risk type annotation based on utility curvature
