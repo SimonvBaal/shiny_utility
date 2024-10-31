@@ -177,7 +177,7 @@ server <- function(input, output, session) {
   #======================================== Prospect Theory Notes
   
   output$loss_note <- renderText({
-    risk_preference <- "Diminishing sensitivity influences value similar to EU theory - in gains v(EV) > v(gamble) for risk averse individuals. Losses change things: "
+    risk_preference <- "Diminishing sensitivity influences value similar to EU theory - in gains v(EV) > v(gamble) for risk averse individuals. In losses, people are risk seeking! "
     loss_aversion_type <- if (input$loss_aversion == 1)
       "If the loss aversion parameter is 1, the individual is neutral to gains vs losses. A loss of $100 is equally as bad as a gain of $100 is good."
     else if (input$loss_aversion > 1)
