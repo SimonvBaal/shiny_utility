@@ -5,6 +5,9 @@ library(bslib)
 library(bsicons)
 library(gitlink)
 
+
+# One can define functions here (as I should have done)
+
 # Define UI for application that calculates the value of a prospect
 ui <- page_sidebar(
   ribbon_css("https://github.com/SimonvBaal/shiny_utility"),
@@ -228,7 +231,9 @@ server <- function(input, output, session) {
     }
     # Define a sequence of values for X (representing value) with a broader negative range
     x_values <- seq(x_min, 
-                    max(input$value_a, input$value_b) * 1.5, by = 1)
+                    ifelse(sign(max(input$value_a, input$value_b)) == 1, 
+                           max(input$value_a, input$value_b) * 1.5,
+                           max(input$value_a, input$value_b) * .75), by = 1)
     
     # Calculate the corresponding Y values for the value function
     y_values <- (abs(x_values) ^ input$utility_curvature) * 
