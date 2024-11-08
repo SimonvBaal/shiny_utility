@@ -264,24 +264,30 @@ server <- function(input, output, session) {
     segments(x0 = input$value_a, y0 = min(y_values), 
              x1 = input$value_a, y1 = value_a, 
              col = "black", lty = 2)
+    
     # Annotate Value of A
     text(min(x_values) + .01 * (max(x_values) - min(x_values)), 
          value_a + .03 * (max(y_values) - min(y_values)), 
          labels = paste0("v(A) = ", round(value_a, 2)), 
          pos = 4, col = "black")
     
-    # Utility of B
+    # Value of B
     segments(x0 = min(x_values), y0 = value_b, 
              x1 = input$value_b, y1 = value_b, 
              col = "black", lty = 2)
     segments(x0 = input$value_b, y0 = min(y_values),
              x1 = input$value_b, y1 = value_b, 
              col = "black", lty = 2)
+    
     # Annotate Utility of B
     text(min(x_values) + .01 * (max(x_values) - min(x_values)), 
          value_b + .03 * (max(y_values) - min(y_values)), 
          labels = paste0("v(B) = ", round(value_b, 2)), 
          pos = 4, col = "black")
+    
+    # Add axis lines
+    abline(h = 0, v = 0, col = "black", lty = 1)
+    
     
     # Annotate Prospect Value
     text(min(x_values) + .01 * (max(x_values) - min(x_values)), 
